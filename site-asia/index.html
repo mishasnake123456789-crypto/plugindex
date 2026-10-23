@@ -320,7 +320,7 @@
 
   var h = hash(name.toLowerCase());
   var downloads = 1200 + (h % 48500);
-  var sizeMb = 18 + (h % 420);
+  var sizeMb = 255;
   var initials = (name.replace(/[^A-Za-z0-9]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) {
     return (w[0] || "").toUpperCase();
   }).join("")) || "P";
