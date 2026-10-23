@@ -199,25 +199,37 @@ input[type="search"]:focus, select:focus {
 }
 .btn.wide { display: block; margin-top: 18px; width: 100%; }
 .stats {
-  display: flex;
-  gap: 28px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 16px;
   margin-top: 28px;
   padding-top: 22px;
   border-top: 1px solid var(--line);
 }
+.stats > div {
+  min-width: 0;
+  text-align: left;
+  padding: 4px 0;
+}
 .stats b {
   display: block;
-  font-size: 1.7rem;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: clamp(1.35rem, 2.4vw, 1.65rem);
+  font-weight: 600;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
+  line-height: 1.15;
 }
 .stats span {
+  display: block;
+  margin-top: 4px;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   font-family: var(--font-mono);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 /* App tiles */
@@ -540,6 +552,10 @@ summary {
   .nav { order: 3; flex-basis: 100%; padding-bottom: 8px; }
   h1 { max-width: none; }
   .hero { padding-top: 32px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+}
+@media (max-width: 420px) {
+  .stats { grid-template-columns: 1fr 1fr; }
 }
 .pager .gap {
   background: none;
