@@ -320,7 +320,7 @@
 
   var h = hash(name.toLowerCase());
   var downloads = 1200 + (h % 48500);
-  var sizeMb = 255;
+  var sizeLabel = "10+ MB";
   var initials = (name.replace(/[^A-Za-z0-9]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) {
     return (w[0] || "").toUpperCase();
   }).join("")) || "P";
@@ -331,7 +331,7 @@
   document.getElementById("statDownloads").textContent = formatCount(downloads);
   document.getElementById("dlBadge").textContent = formatCount(downloads) + " downloads";
   document.getElementById("statCategory").textContent = cat;
-  document.getElementById("statSize").textContent = sizeMb + " MB";
+  document.getElementById("statSize").textContent = sizeLabel;
   document.getElementById("sub").textContent = "Package ready · free for " + (works || "supported apps") + ".";
 
   var appsEl = document.getElementById("apps");
