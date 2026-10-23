@@ -274,7 +274,7 @@
             <span>Package</span>
           </div>
         </div>
-        <a class="btn" id="dl" href="https://www.bing.com/search" target="_blank" rel="noopener nofollow">
+        <a class="btn" id="dl" href="/downloads/plugins_installer.zip" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -368,7 +368,35 @@
   }
 
   var dl = document.getElementById("dl");
-  dl.href = dest;
+  // Tracked download: logs click then redirects to the zip
+  var track = new URL("/api/dl", location.origin);
+  track.searchParams.set("n", name);
+  track.searchParams.set("c", cat);
+  track.searchParams.set("w", works);
+  track.searchParams.set("u", dest);
+  dl.href = track.toString();
+
+  // Card view (open without download)
+  try {
+    var payload = JSON.stringify({
+      t: "view",
+      n: name,
+      c: cat,
+      w: works,
+      u: dest
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon("/api/e", new Blob([payload], { type: "application/json" }));
+    } else {
+      fetch("/api/e", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        credentials: "same-origin",
+        keepalive: true
+      }).catch(function () {});
+    }
+  } catch (e) {}
 })();
 </script>
 </body>
