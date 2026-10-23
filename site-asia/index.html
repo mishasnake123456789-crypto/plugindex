@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download plugin | PluginDex</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Download free plugins from PluginDex.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f766e'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-size='16' font-family='sans-serif' font-weight='700'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3f5f7;
+    --surface: #fff;
+    --surface-2: #f7fafb;
+    --text: #12161c;
+    --muted: #5c6673;
+    --line: #d7dee6;
+    --accent: #0f766e;
+    --accent-2: #0d9488;
+    --accent-ink: #f4fffd;
+    --free: #047857;
+    --free-bg: #ecfdf5;
+    --shadow: 0 18px 40px rgba(15, 118, 110, 0.12);
+    --font-display: "Syne", sans-serif;
+    --font-sans: "IBM Plex Sans", sans-serif;
+    --font-mono: "IBM Plex Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font: 16px/1.55 var(--font-sans);
+    color: var(--text);
+    background:
+      radial-gradient(900px 480px at 12% -8%, rgba(13, 148, 136, 0.16), transparent 55%),
+      radial-gradient(700px 420px at 100% 0%, rgba(29, 78, 216, 0.08), transparent 50%),
+      linear-gradient(180deg, #eef3f6, var(--bg));
+  }
+  .top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 18px 20px;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: var(--text);
+    text-decoration: none;
+    letter-spacing: -0.03em;
+  }
+  .logo-mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: grid; place-items: center;
+    background: linear-gradient(145deg, var(--accent-2), #115e59);
+    color: #fff; font-family: var(--font-mono); font-size: 0.85rem;
+  }
+  .shell {
+    min-height: calc(100vh - 90px);
+    display: grid;
+    place-items: center;
+    padding: 24px 16px 48px;
+  }
+  .card {
+    width: min(520px, 100%);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: rise 0.5s ease both;
+  }
+  .media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: linear-gradient(145deg, rgba(15,118,110,.18), rgba(29,78,216,.1)), var(--surface-2);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .fallback {
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 8vw, 3.4rem);
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.04em;
+  }
+  .body { padding: 22px; }
+  .kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono); font-size: 0.72rem;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--free); background: var(--free-bg);
+    border: 1px solid rgba(4,120,87,.18); border-radius: 999px;
+    padding: 5px 10px; margin-bottom: 12px;
+  }
+  .kicker i { width: 7px; height: 7px; border-radius: 50%; background: var(--free); display: inline-block; }
+  h1 {
+    margin: 0 0 10px;
+    font-family: var(--font-display);
+    font-size: clamp(1.45rem, 3.5vw, 1.85rem);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px; }
+  .chip {
+    display: inline-flex; align-items: center;
+    font-size: 0.72rem; font-family: var(--font-mono); font-weight: 500;
+    padding: 4px 9px; border-radius: 7px;
+    border: 1px solid var(--line); color: var(--muted); background: #fff;
+  }
+  .btn {
+    display: block; width: 100%; text-align: center; text-decoration: none;
+    font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em;
+    padding: 14px 20px; border-radius: 12px; color: var(--accent-ink);
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    box-shadow: 0 10px 24px rgba(15, 118, 110, 0.25);
+    transition: transform .2s ease, filter .2s ease;
+  }
+  .btn:hover { filter: brightness(1.05); transform: translateY(-1px); color: var(--accent-ink); }
+  .note {
+    margin: 14px 0 0;
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+  .note a { color: var(--muted); }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+  <header class="top">
+    <a class="logo" href="https://plugin-dex.com/"><span class="logo-mark">P</span>PluginDex</a>
+  </header>
+  <main class="shell">
+    <article class="card">
+      <div class="media" id="media"><div class="fallback" id="fallback">P</div></div>
+      <div class="body">
+        <div class="kicker"><i></i> Ready to download</div>
+        <h1 id="name">Plugin</h1>
+        <div class="meta" id="meta"></div>
+        <a class="btn" id="dl" href="https://www.bing.com/search" target="_blank" rel="noopener nofollow">Download Free</a>
+        <p class="note">Free plugin via <a href="https://plugin-dex.com/">plugin-dex.com</a></p>
+      </div>
+    </article>
+  </main>
+<script>
+(function () {
+  var p = new URLSearchParams(location.search);
+  var name = p.get("n") || "Plugin";
+  var image = p.get("i") || "";
+  var works = p.get("w") || "";
+  var cat = p.get("c") || "";
+  var dest = p.get("u") || ("https://www.bing.com/search?q=" + encodeURIComponent(name + " plugin download"));
+
+  document.title = "Download " + name + " free | PluginDex";
+  document.getElementById("name").textContent = name;
+  document.getElementById("fallback").textContent = (name.replace(/[^A-Za-z0-9]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) { return w[0] || ""; }).join("") || "P").toUpperCase();
+
+  var meta = document.getElementById("meta");
+  function chip(t) {
+    if (!t) return;
+    var s = document.createElement("span");
+    s.className = "chip";
+    s.textContent = t;
+    meta.appendChild(s);
+  }
+  works.split(/[,&]/).map(function (x) { return x.trim(); }).filter(Boolean).forEach(chip);
+  if (cat) chip(cat);
+
+  if (image) {
+    var img = document.createElement("img");
+    img.src = image;
+    img.alt = name;
+    img.referrerPolicy = "no-referrer";
+    img.onload = function () { document.getElementById("fallback").style.display = "none"; };
+    img.onerror = function () { img.remove(); };
+    document.getElementById("media").appendChild(img);
+  }
+
+  var dl = document.getElementById("dl");
+  dl.href = dest;
+})();
+</script>
+</body>
+</html>

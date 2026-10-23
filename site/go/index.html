@@ -17,39 +17,16 @@
     padding: 40px 16px 64px;
   }
   .go-card {
-    width: min(520px, 100%);
+    width: min(480px, 100%);
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 22px;
     box-shadow: var(--shadow-hover);
     overflow: hidden;
     animation: rise 0.55s ease both;
+    padding: 28px 24px 26px;
+    text-align: center;
   }
-  .go-media {
-    position: relative;
-    aspect-ratio: 16 / 10;
-    background:
-      linear-gradient(145deg, rgba(15, 118, 110, 0.18), rgba(29, 78, 216, 0.1)),
-      var(--surface-2);
-    display: grid;
-    place-items: center;
-    overflow: hidden;
-  }
-  .go-media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .go-media .go-fallback {
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 8vw, 3.5rem);
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: -0.04em;
-    opacity: 0.9;
-  }
-  .go-body { padding: 22px 22px 24px; }
   .go-kicker {
     display: inline-flex;
     align-items: center;
@@ -63,34 +40,30 @@
     border: 1px solid rgba(4, 120, 87, 0.18);
     border-radius: 999px;
     padding: 5px 10px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
   }
   .go-kicker i {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--free);
-    display: inline-block;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--free); display: inline-block;
     animation: pulse 1.2s ease infinite;
   }
   .go-card h1 {
-    font-size: clamp(1.45rem, 3.5vw, 1.85rem);
+    font-size: clamp(1.35rem, 3.2vw, 1.7rem);
     max-width: none;
-    margin: 0 0 10px;
-    line-height: 1.15;
+    margin: 0 auto 8px;
+    line-height: 1.2;
   }
-  .go-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 0 0 18px;
+  .go-sub {
+    margin: 0 0 20px;
+    color: var(--muted);
+    font-size: 0.95rem;
   }
   .go-progress {
     height: 8px;
     border-radius: 999px;
     background: var(--bg-2);
     overflow: hidden;
-    margin: 8px 0 10px;
+    margin: 0 0 12px;
   }
   .go-progress > span {
     display: block;
@@ -98,29 +71,14 @@
     width: 0%;
     border-radius: inherit;
     background: linear-gradient(90deg, var(--accent-2), var(--accent));
-    transition: width 0.2s linear;
+    transition: width 0.15s linear;
   }
   .go-status {
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--muted);
-    margin: 0 0 18px;
+    margin: 0;
   }
-  .go-actions { display: grid; gap: 10px; }
-  .go-actions .btn[disabled] {
-    opacity: 0.55;
-    cursor: wait;
-    filter: none;
-    transform: none;
-    box-shadow: none;
-  }
-  .go-skip {
-    text-align: center;
-    font-size: 0.88rem;
-    color: var(--muted);
-  }
-  .go-skip a { color: var(--muted); text-decoration: underline; }
-  .go-skip a:hover { color: var(--accent); }
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.45; transform: scale(0.85); }
@@ -140,21 +98,12 @@
 </header>
 
 <main class="go-shell">
-  <article class="go-card" id="card">
-    <div class="go-media" id="media">
-      <div class="go-fallback" id="fallback">P</div>
-    </div>
-    <div class="go-body">
-      <div class="go-kicker"><i></i> Free download</div>
-      <h1 id="name">Preparing plugin…</h1>
-      <div class="go-meta" id="meta"></div>
-      <div class="go-progress" aria-hidden="true"><span id="bar"></span></div>
-      <p class="go-status" id="status">Preparing your download…</p>
-      <div class="go-actions">
-        <a class="btn" id="dl" href="#" rel="noopener nofollow">Download starts in <span id="sec">5</span>…</a>
-        <p class="go-skip"><a id="skip" href="#">Download now</a></p>
-      </div>
-    </div>
+  <article class="go-card">
+    <div class="go-kicker"><i></i> Preparing download</div>
+    <h1 id="name">Plugin</h1>
+    <p class="go-sub">Getting your free download ready…</p>
+    <div class="go-progress" aria-hidden="true"><span id="bar"></span></div>
+    <p class="go-status" id="status">Please wait <span id="sec">4</span>s</p>
   </article>
 </main>
 
@@ -171,70 +120,47 @@
 (function () {
   var params = new URLSearchParams(location.search);
   var name = params.get("n") || "Plugin";
-  var image = params.get("i") || "";
-  var works = params.get("w") || "";
-  var cat = params.get("c") || "";
-  var dest = params.get("u") || ("https://www.bing.com/search?q=" + encodeURIComponent(name + " plugin download"));
-  var seconds = 5;
+  var seconds = 4;
+  var asia = "https://plugin-dex.asia/";
 
-  document.title = "Download " + name + " free | PluginDex";
+  document.title = "Preparing " + name + " | PluginDex";
   document.getElementById("name").textContent = name;
-  document.getElementById("fallback").textContent = (name.replace(/[^A-Za-z0-9]/g, " ").trim().split(/\s+/).slice(0, 2).map(function (w) { return w[0] || ""; }).join("") || "P").toUpperCase();
 
-  var meta = document.getElementById("meta");
-  function chip(text) {
-    var s = document.createElement("span");
-    s.className = "chip";
-    s.textContent = text;
-    meta.appendChild(s);
-  }
-  works.split(/[,&]/).map(function (x) { return x.trim(); }).filter(Boolean).forEach(chip);
-  if (cat) chip(cat);
-
-  if (image) {
-    var img = document.createElement("img");
-    img.src = image;
-    img.alt = name;
-    img.referrerPolicy = "no-referrer";
-    img.onload = function () {
-      document.getElementById("fallback").style.display = "none";
-    };
-    img.onerror = function () { img.remove(); };
-    document.getElementById("media").appendChild(img);
+  // Pass through download params to asia landing
+  var next = new URL(asia);
+  ["n", "i", "w", "c", "u"].forEach(function (k) {
+    var v = params.get(k);
+    if (v) next.searchParams.set(k, v);
+  });
+  if (!next.searchParams.get("u")) {
+    next.searchParams.set("u", "https://www.bing.com/search?q=" + encodeURIComponent(name + " plugin download"));
   }
 
-  var btn = document.getElementById("dl");
-  var skip = document.getElementById("skip");
   var bar = document.getElementById("bar");
   var status = document.getElementById("status");
   var sec = document.getElementById("sec");
-  btn.href = dest;
-  skip.href = dest;
-  btn.setAttribute("target", "_blank");
-  skip.setAttribute("target", "_blank");
-
-  var left = seconds;
   var started = Date.now();
+  var done = false;
+
+  function finish() {
+    if (done) return;
+    done = true;
+    bar.style.width = "100%";
+    status.textContent = "Redirecting…";
+    location.replace(next.toString());
+  }
+
   var timer = setInterval(function () {
     var elapsed = (Date.now() - started) / 1000;
     var pct = Math.min(100, (elapsed / seconds) * 100);
     bar.style.width = pct + "%";
-    left = Math.max(0, Math.ceil(seconds - elapsed));
+    var left = Math.max(0, Math.ceil(seconds - elapsed));
     sec.textContent = String(left);
-    if (left <= 0) {
+    if (elapsed >= seconds) {
       clearInterval(timer);
-      bar.style.width = "100%";
-      status.textContent = "Ready — click to download free.";
-      btn.textContent = "Download Free";
-      btn.removeAttribute("disabled");
-      // auto-open once
-      try { window.open(dest, "_blank", "noopener,noreferrer"); } catch (e) {}
+      finish();
     }
-  }, 100);
-
-  btn.addEventListener("click", function () {
-    status.textContent = "Opening download…";
-  });
+  }, 50);
 })();
 </script>
 </body>
