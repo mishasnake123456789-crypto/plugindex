@@ -8,4 +8,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://plugindex.com/sitemap.xml
+Sitemap: https://plugin-dex.com/sitemap.xml
