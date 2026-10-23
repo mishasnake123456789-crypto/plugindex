@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /assets/search-index.json
+
+Sitemap: https://plugindex.com/sitemap.xml
