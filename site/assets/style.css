@@ -56,7 +56,7 @@ body::before {
 
 a { color: var(--accent); text-decoration: none; }
 a:hover { color: var(--accent-2); text-decoration: none; }
-h1, h2, h3, .card-title, .logo, .app b, .stats b {
+h1, h2, h3, .card-title, .logo, .app b {
   font-family: var(--font-display);
   letter-spacing: -0.03em;
 }
