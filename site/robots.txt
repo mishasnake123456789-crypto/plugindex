@@ -1,11 +1,15 @@
 User-agent: *
 Allow: /
 Disallow: /assets/search-index.json
+Disallow: /go/
 
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
+Allow: /
+
+User-agent: bingbot
 Allow: /
 
 Sitemap: https://plugin-dex.com/sitemap.xml
