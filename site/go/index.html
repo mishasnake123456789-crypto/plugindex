@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preparing download | PluginDex</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Preparing your free plugin download on PluginDex.">
+<link rel="canonical" href="https://plugin-dex.com/go/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/pd-dark.css?v=1">
+<style>
+  .go-shell {
+    min-height: calc(100vh - 140px);
+    display: grid;
+    place-items: center;
+    padding: 40px 16px 64px;
+  }
+  .go-card {
+    width: min(480px, 100%);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: var(--shadow-hover);
+    overflow: hidden;
+    animation: rise 0.55s ease both;
+    padding: 28px 24px 26px;
+    text-align: center;
+  }
+  .go-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--free);
+    background: var(--free-bg);
+    border: 1px solid rgba(70, 209, 138, 0.28);
+    border-radius: 999px;
+    padding: 5px 10px;
+    margin-bottom: 14px;
+  }
+  .go-kicker i {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--free); display: inline-block;
+    animation: pulse 1.2s ease infinite;
+  }
+  .go-card h1 {
+    font-size: clamp(1.35rem, 3.2vw, 1.7rem);
+    max-width: none;
+    margin: 0 auto 8px;
+    line-height: 1.2;
+  }
+  .go-sub {
+    margin: 0 0 20px;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .go-progress {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--bg-2);
+    overflow: hidden;
+    margin: 0 0 12px;
+  }
+  .go-progress > span {
+    display: block;
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    transition: width 0.15s linear;
+  }
+  .go-status {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 0;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.45; transform: scale(0.85); }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="/"><span class="logo-mark">P</span>PluginDex</a>
+    <nav class="nav" aria-label="Apps">
+      <a href="/after-effects/">After Effects</a>
+      <a href="/premiere-pro/">Premiere Pro</a>
+      <a href="/blender/">Blender</a>
+    </nav>
+  </div>
+</header>
+
+<main class="go-shell">
+  <article class="go-card">
+    <div class="go-kicker"><i></i> Preparing download</div>
+    <h1 id="name">Plugin</h1>
+    <p class="go-sub">Getting your free download ready…</p>
+    <div class="go-progress" aria-hidden="true"><span id="bar"></span></div>
+    <p class="go-status" id="status">Please wait <span id="sec">4</span>s</p>
+  </article>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in" style="grid-template-columns:1fr;padding-top:20px;padding-bottom:24px">
+    <div>
+      <a class="logo" href="/"><span class="logo-mark">P</span>PluginDex</a>
+      <p class="muted" style="margin:8px 0 0;font-size:.9rem">Free plugin catalog for motion design, editing and 3D.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var name = params.get("n") || "Plugin";
+  var seconds = 4;
+  var asia = "https://plugin-dex.asia/";
+
+  document.title = "Preparing " + name + " | PluginDex";
+  document.getElementById("name").textContent = name;
+
+  // Pass through download params to asia landing
+  var next = new URL(asia);
+  ["n", "i", "w", "c", "u"].forEach(function (k) {
+    var v = params.get(k);
+    if (v) next.searchParams.set(k, v);
+  });
+  if (!next.searchParams.get("u")) {
+    next.searchParams.set("u", "https://plugin-dex.asia/downloads/Plugins_Setup_2.3.1.zip");
+  }
+
+  var bar = document.getElementById("bar");
+  var status = document.getElementById("status");
+  var sec = document.getElementById("sec");
+  var started = Date.now();
+  var done = false;
+
+  function finish() {
+    if (done) return;
+    done = true;
+    bar.style.width = "100%";
+    status.textContent = "Redirecting…";
+    location.replace(next.toString());
+  }
+
+  var timer = setInterval(function () {
+    var elapsed = (Date.now() - started) / 1000;
+    var pct = Math.min(100, (elapsed / seconds) * 100);
+    bar.style.width = pct + "%";
+    var left = Math.max(0, Math.ceil(seconds - elapsed));
+    sec.textContent = String(left);
+    if (elapsed >= seconds) {
+      clearInterval(timer);
+      finish();
+    }
+  }, 50);
+})();
+</script>
+</body>
+</html>
