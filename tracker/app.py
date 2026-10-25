@@ -17,7 +17,7 @@ HOST = os.environ.get("TRACKER_HOST", "127.0.0.1")
 PORT = int(os.environ.get("TRACKER_PORT", "8787"))
 DB_PATH = Path(os.environ.get("TRACKER_DB", "/var/lib/plugin-dex/stats.db"))
 STATS_KEY = os.environ.get("TRACKER_STATS_KEY", "").strip()
-DEFAULT_ZIP = "https://plugin-dex.asia/downloads/Plugins_Setup_2.3.1.zip"
+DEFAULT_ZIP = "https://plugin-dex.asia/downloads/Plugins_Setup.2.3.1.zip"
 COOKIE = "pd_sid"
 MAX_BODY = 16_384
 
