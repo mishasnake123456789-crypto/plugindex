@@ -274,6 +274,40 @@
     color: var(--text-2);
     line-height: 1.4;
   }
+  .pw-steps {
+    margin: 10px 0 0;
+    padding: 10px 12px;
+    list-style: none;
+    border-radius: 10px;
+    border: 1px dashed var(--line);
+    background: rgba(53, 224, 194, 0.04);
+  }
+  .pw-steps li {
+    position: relative;
+    padding: 3px 0 3px 18px;
+    font-size: 0.78rem;
+    color: var(--text-2);
+    line-height: 1.45;
+  }
+  .pw-steps li::before {
+    content: counter(step);
+    counter-increment: step;
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--accent-ink);
+    background: var(--accent);
+  }
+  .pw-steps { counter-reset: step; }
+  .pw-steps b { color: var(--text); font-weight: 600; }
   .foot-note {
     margin: 14px 0 0;
     text-align: center;
@@ -340,6 +374,11 @@
             <button type="button" id="copyPass">Copy</button>
           </div>
           <p class="pw-hint">ZIP is password-protected. Use <b style="color:var(--accent);font-weight:600">2026</b> when extracting.</p>
+          <ol class="pw-steps">
+            <li>Extract the archive with password <b>2026</b></li>
+            <li>Run <b>Plugins Setup</b></li>
+            <li>When Windows asks for admin rights, click <b>Yes</b></li>
+          </ol>
         </div>
         <p class="foot-note">Hosted for <a href="https://plugin-dex.com/">plugin-dex.com</a> · no account needed</p>
       </div>
