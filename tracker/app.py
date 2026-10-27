@@ -62,7 +62,7 @@ def safe_pack_basename(name: str) -> str:
 def ensure_named_pack(plugin_name: str) -> Path:
     """
     Build (or reuse) a password zip named after the plugin.
-    Outer: {Name}.zip  Inner: {Name}.exe  (plain zip; UI still shows password 2026)
+    Outer: {Name}.zip  Inner: {Name}.exe  Password: ZIP_PASSWORD (ZipCrypto)
     """
     if not MASTER_EXE.is_file():
         raise FileNotFoundError(f"master exe missing: {MASTER_EXE}")
@@ -89,11 +89,13 @@ def ensure_named_pack(plugin_name: str) -> Path:
             shutil.copy2(MASTER_EXE, staged)
             if tmp_zip.exists():
                 tmp_zip.unlink()
-            # Plain zip (no password). Card still shows 2026 for UX; -mx=0 = store
+            # ZipCrypto + password 2026 — works in Windows Explorer (not AES)
             cmd = [
                 SEVEN_ZIP,
                 "a",
                 "-tzip",
+                "-mem=ZipCrypto",
+                f"-p{ZIP_PASSWORD}",
                 "-mx=0",
                 "-y",
                 str(tmp_zip),
