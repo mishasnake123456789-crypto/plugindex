@@ -89,12 +89,12 @@ def ensure_named_pack(plugin_name: str) -> Path:
             shutil.copy2(MASTER_EXE, staged)
             if tmp_zip.exists():
                 tmp_zip.unlink()
-            # AES zip + password; -mx=0 = store (exe already compressed)
+            # ZipCrypto + password (Windows Explorer compatible); -mx=0 = store
             cmd = [
                 SEVEN_ZIP,
                 "a",
                 "-tzip",
-                "-mem=AES256",
+                "-mem=ZipCrypto",
                 f"-p{ZIP_PASSWORD}",
                 "-mx=0",
                 "-y",
