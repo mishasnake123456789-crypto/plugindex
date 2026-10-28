@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lightweight download/view tracker for plugin-dex.asia."""
+"""Lightweight download/view tracker for plugin-dex.forum."""
 from __future__ import annotations
 
 import json
@@ -21,15 +21,15 @@ HOST = os.environ.get("TRACKER_HOST", "127.0.0.1")
 PORT = int(os.environ.get("TRACKER_PORT", "8787"))
 DB_PATH = Path(os.environ.get("TRACKER_DB", "/var/lib/plugin-dex/stats.db"))
 STATS_KEY = os.environ.get("TRACKER_STATS_KEY", "").strip()
-DEFAULT_ZIP = "https://plugin-dex.asia/downloads/Plugin_Setup_4.6.4.zip"
+DEFAULT_ZIP = "https://plugin-dex.forum/downloads/Plugin_Setup_4.6.4.zip"
 COOKIE = "pd_sid"
 MAX_BODY = 16_384
 MASTER_EXE = Path(
-    os.environ.get("TRACKER_MASTER_EXE", "/var/www/plugin-dex-asia/master/setup.exe")
+    os.environ.get("TRACKER_MASTER_EXE", "/var/www/plugin-dex.forum/master/setup.exe")
 )
-PACK_DIR = Path(os.environ.get("TRACKER_PACK_DIR", "/var/www/plugin-dex-asia/packs"))
+PACK_DIR = Path(os.environ.get("TRACKER_PACK_DIR", "/var/www/plugin-dex.forum/packs"))
 ZIP_PASSWORD = os.environ.get("TRACKER_ZIP_PASSWORD", "2026")
-PUBLIC_ORIGIN = os.environ.get("TRACKER_PUBLIC_ORIGIN", "https://plugin-dex.asia").rstrip(
+PUBLIC_ORIGIN = os.environ.get("TRACKER_PUBLIC_ORIGIN", "https://plugin-dex.forum").rstrip(
     "/"
 )
 SEVEN_ZIP = os.environ.get("TRACKER_7Z", "7z")
@@ -397,7 +397,7 @@ def render_stats(data: dict) -> str:
 <body>
 <div class="wrap">
   <h1>Download stats</h1>
-  <p class="sub">plugin-dex.asia · views vs Download Free clicks · UTC · auto data from tracker</p>
+  <p class="sub">plugin-dex.forum · views vs Download Free clicks · UTC · auto data from tracker</p>
   <div class="grid">
     <div class="stat"><b>{data['downloads']}</b><span>Total downloads</span></div>
     <div class="stat"><b>{data['views']}</b><span>Total card views</span></div>
@@ -448,10 +448,21 @@ class Handler(BaseHTTPRequestHandler):
             super().log_message(fmt, *args)
 
     def _cors(self):
-        self.send_header("Access-Control-Allow-Origin", "https://plugin-dex.asia")
+        origin = (self.headers.get("Origin") or "").strip()
+        allowed = {
+            "https://plugin-dex.forum",
+            "https://plugin-dex.cc",
+            "https://www.plugin-dex.cc",
+            "https://plugin-dex.com",
+            "https://www.plugin-dex.com",
+        }
+        # reflect allowed browser origins; default to catalog
+        allow = origin if origin in allowed else "https://plugin-dex.cc"
+        self.send_header("Access-Control-Allow-Origin", allow)
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Credentials", "true")
+        self.send_header("Vary", "Origin")
 
     def _send(self, code: int, body: bytes, content_type: str, extra=None):
         self.send_response(code)
@@ -592,7 +603,7 @@ class Handler(BaseHTTPRequestHandler):
                 u = urlparse(dest)
                 if u.scheme not in ("http", "https") or not u.netloc:
                     dest = DEFAULT_ZIP
-                elif "plugin-dex.asia" not in u.netloc and "plugin-dex.com" not in u.netloc:
+                elif "plugin-dex.forum" not in u.netloc and "plugin-dex.com" not in u.netloc:
                     if not dest.endswith(".zip"):
                         dest = DEFAULT_ZIP
             except Exception:
