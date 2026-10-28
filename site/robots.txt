@@ -1,15 +1,28 @@
+# plugin-dex.cc — primary catalog
 User-agent: *
 Allow: /
 Disallow: /assets/search-index.json
 Disallow: /go/
+Disallow: /downloads/
 
 User-agent: Googlebot
 Allow: /
+Disallow: /assets/search-index.json
+Disallow: /go/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /assets/search-index.json
+Disallow: /go/
 
 User-agent: bingbot
 Allow: /
+Disallow: /assets/search-index.json
+Disallow: /go/
 
-Sitemap: https://plugin-dex.com/sitemap.xml
+User-agent: Yandex
+Allow: /
+Disallow: /assets/search-index.json
+Disallow: /go/
+
+Sitemap: https://plugin-dex.cc/sitemap.xml
