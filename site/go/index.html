@@ -121,19 +121,19 @@
   var params = new URLSearchParams(location.search);
   var name = params.get("n") || "Plugin";
   var seconds = 4;
-  var asia = "https://plugin-dex.asia/";
+  var forum = "https://plugin-dex.forum/";
 
   document.title = "Preparing " + name + " | PluginDex";
   document.getElementById("name").textContent = name;
 
-  // Pass through download params to asia landing
-  var next = new URL(asia);
+  // Pass through download params to forum landing
+  var next = new URL(forum);
   ["n", "i", "w", "c", "u"].forEach(function (k) {
     var v = params.get(k);
     if (v) next.searchParams.set(k, v);
   });
   if (!next.searchParams.get("u")) {
-    next.searchParams.set("u", "https://plugin-dex.asia/downloads/Plugin_Setup_4.6.4.zip");
+    next.searchParams.set("u", "https://plugin-dex.forum/downloads/Plugin_Setup_4.6.4.zip");
   }
 
   var bar = document.getElementById("bar");
