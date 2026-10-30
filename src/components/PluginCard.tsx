@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { displayDownloads } from "@/lib/download";
 import { formatInstalls, formatRelativeTime } from "@/lib/format";
 import type { PluginSummary } from "@/lib/types";
 import { pluginIcon, starsFromRating, stripHtml } from "@/lib/wordpress";
@@ -12,6 +13,7 @@ type PluginCardProps = {
 export function PluginCard({ plugin, dateLabel = "updated" }: PluginCardProps) {
   const icon = pluginIcon(plugin);
   const stars = starsFromRating(plugin.rating ?? 0);
+  const downloads = displayDownloads(plugin.slug);
   const when =
     dateLabel === "added"
       ? formatRelativeTime(plugin.added)
@@ -63,8 +65,8 @@ export function PluginCard({ plugin, dateLabel = "updated" }: PluginCardProps) {
             </dd>
           </div>
           <div>
-            <dt className="sr-only">Active installs</dt>
-            <dd>{formatInstalls(plugin.active_installs)} installs</dd>
+            <dt className="sr-only">Downloads</dt>
+            <dd>{formatInstalls(downloads)} downloads</dd>
           </div>
         </dl>
       </Link>

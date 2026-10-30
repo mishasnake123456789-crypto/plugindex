@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DownloadModal } from "@/components/DownloadModal";
 import { getPlugin, listLocalSlugs } from "@/lib/catalog";
+import { displayDownloads } from "@/lib/download";
 import { formatInstalls, formatRelativeTime, truncate } from "@/lib/format";
 import { breadcrumbJsonLd, parseWpDate } from "@/lib/seo";
 import {
@@ -86,6 +88,8 @@ export default async function PluginPage({ params }: PageProps) {
   const author = stripHtml(plugin.author);
   const wordpressOrgUrl = `https://wordpress.org/plugins/${plugin.slug}/`;
   const modified = parseWpDate(plugin.last_updated);
+  const downloads = displayDownloads(plugin.slug);
+  const primaryTag = tags[0]?.[1] || "WordPress";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -167,23 +171,21 @@ export default async function PluginPage({ params }: PageProps) {
           </div>
 
           <div className="cta-row">
+            <DownloadModal
+              pluginName={name}
+              pluginSlug={plugin.slug}
+              category={primaryTag}
+              buttonClassName="button button-primary"
+              buttonLabel="Download package"
+            />
             <a
-              className="button button-primary"
+              className="button button-ghost"
               href={wordpressOrgUrl}
               target="_blank"
               rel="noopener noreferrer"
             >
               View on WordPress.org
             </a>
-            {plugin.download_link ? (
-              <a
-                className="button button-ghost"
-                href={plugin.download_link}
-                rel="noopener noreferrer"
-              >
-                Download package
-              </a>
-            ) : null}
             {plugin.homepage ? (
               <a
                 className="button button-ghost"
@@ -246,6 +248,10 @@ export default async function PluginPage({ params }: PageProps) {
             <div className="snapshot-item">
               <span>Added</span>
               <strong>{formatRelativeTime(plugin.added)}</strong>
+            </div>
+            <div className="snapshot-item">
+              <span>Downloads</span>
+              <strong>{formatInstalls(downloads)}</strong>
             </div>
             <div className="snapshot-item">
               <span>Active installations</span>
