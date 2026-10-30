@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Pagination } from "@/components/Pagination";
 import { PluginCard } from "@/components/PluginCard";
 import { SearchForm } from "@/components/SearchForm";
 import { StatsStrip } from "@/components/StatsStrip";
-import { queryPlugins } from "@/lib/wordpress";
+import { localIndexStats, queryPlugins } from "@/lib/catalog";
+import { itemListJsonLd } from "@/lib/seo";
+import { stripHtml } from "@/lib/wordpress";
+
+export const runtime = "nodejs";
 
 type PageProps = {
   searchParams: Promise<{ q?: string; page?: string; tag?: string }>;
@@ -39,6 +44,12 @@ export default async function PluginsPage({ searchParams }: PageProps) {
   const q = params.q?.trim() || undefined;
   const tag = params.tag?.trim() || undefined;
 
+  // Prefer canonical tag URLs for indexing.
+  if (tag && !q) {
+    const suffix = page > 1 ? `?page=${page}` : "";
+    redirect(`/tag/${encodeURIComponent(tag)}${suffix}`);
+  }
+
   let result;
   let error: string | null = null;
   try {
@@ -59,9 +70,21 @@ export default async function PluginsPage({ searchParams }: PageProps) {
     : tag
       ? `Tag: ${tag}`
       : "WordPress Plugin Directory";
+  const stats = localIndexStats();
+  const itemList = itemListJsonLd(
+    heading,
+    result.plugins.map((p) => ({
+      name: stripHtml(p.name),
+      path: `/plugin/${p.slug}`,
+    })),
+  );
 
   return (
     <div className="shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+      />
       <header className="page-hero">
         <p className="eyebrow">Directory</p>
         <h1>{heading}</h1>
@@ -70,7 +93,10 @@ export default async function PluginsPage({ searchParams }: PageProps) {
           plugin activity. Each plugin has a dedicated, indexable profile page.
         </p>
         <SearchForm defaultValue={q || ""} size="compact" />
-        <StatsStrip total={result.info.results} />
+        <StatsStrip
+          total={stats.count || result.info.results}
+          freshness={stats.lastSyncAt ? "local index" : "live API"}
+        />
       </header>
 
       {error ? <p className="error-banner">{error}</p> : null}

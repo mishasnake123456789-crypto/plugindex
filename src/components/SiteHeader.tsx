@@ -5,6 +5,7 @@ const links = [
   { href: "/plugins", label: "Directory" },
   { href: "/recently-updated", label: "Updated" },
   { href: "/new", label: "New" },
+  { href: "/tags", label: "Tags" },
   { href: "/about", label: "About" },
 ];
 

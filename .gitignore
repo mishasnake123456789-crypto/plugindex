@@ -37,6 +37,15 @@ yarn-error.log*
 # Corrupt multipart upload of an unrelated static catalog dump
 /plugindex.zip
 
+# Local SQLite index is distributed as data/plugins.sqlite.gz (<100MB).
+# Decompress on install/build via `pnpm ensure-db` / prebuild.
+/data/*.sqlite
+/data/*.sqlite-wal
+/data/*.sqlite-shm
+/data/*.sqlite-journal
+!/data/plugins.sqlite.gz
+!/data/.gitkeep
+
 # vercel
 .vercel
 

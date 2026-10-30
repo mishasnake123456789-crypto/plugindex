@@ -2,14 +2,17 @@ import Link from "next/link";
 import { PluginCard } from "@/components/PluginCard";
 import { SearchForm } from "@/components/SearchForm";
 import { StatsStrip } from "@/components/StatsStrip";
-import { SITE_NAME, queryPlugins } from "@/lib/wordpress";
+import { localIndexStats, queryPlugins } from "@/lib/catalog";
+import { SITE_NAME } from "@/lib/wordpress";
 
 export const revalidate = 900;
+export const runtime = "nodejs";
 
 export default async function HomePage() {
   const updated = await safeQuery("updated");
   const newest = await safeQuery("new");
-  const total = updated.info.results || newest.info.results;
+  const stats = localIndexStats();
+  const total = stats.count || updated.info.results || newest.info.results;
 
   return (
     <>
@@ -27,7 +30,7 @@ export default async function HomePage() {
             total={total}
             updatedHint={`${updated.plugins.length} shown`}
             newHint={`${newest.plugins.length} shown`}
-            freshness="live API"
+            freshness={stats.lastSyncAt ? "local index" : "live API"}
           />
         </div>
       </section>

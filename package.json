@@ -3,10 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/ensure-db.mjs",
     "dev": "next dev --turbopack",
+    "prebuild": "node scripts/ensure-db.mjs",
     "build": "next build --turbopack",
+    "prestart": "node scripts/ensure-db.mjs",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ensure-db": "node scripts/ensure-db.mjs",
+    "sync": "node --experimental-sqlite scripts/sync-plugins.mjs",
+    "sync:sample": "node --experimental-sqlite scripts/sync-plugins.mjs --max-pages 3",
+    "sync:pack": "gzip -kf -9 data/plugins.sqlite"
   },
   "dependencies": {
     "react": "19.1.0",

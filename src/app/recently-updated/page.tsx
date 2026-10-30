@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Pagination } from "@/components/Pagination";
 import { PluginCard } from "@/components/PluginCard";
-import { queryPlugins } from "@/lib/wordpress";
+import { queryPlugins } from "@/lib/catalog";
+import { itemListJsonLd } from "@/lib/seo";
+import { stripHtml } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
   title: "Recently updated WordPress plugins",
@@ -9,6 +11,8 @@ export const metadata: Metadata = {
     "Browse WordPress plugins most recently updated on WordPress.org, indexed by PlugIndex.",
   alternates: { canonical: "/recently-updated" },
 };
+
+export const runtime = "nodejs";
 
 type PageProps = {
   searchParams: Promise<{ page?: string }>;
@@ -27,8 +31,20 @@ export default async function RecentlyUpdatedPage({ searchParams }: PageProps) {
     result = { info: { page: 1, pages: 0, results: 0 }, plugins: [] };
   }
 
+  const itemList = itemListJsonLd(
+    "Recently updated plugins",
+    result.plugins.map((p) => ({
+      name: stripHtml(p.name),
+      path: `/plugin/${p.slug}`,
+    })),
+  );
+
   return (
     <div className="shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+      />
       <header className="page-hero">
         <p className="eyebrow">Freshness</p>
         <h1>Recently updated</h1>

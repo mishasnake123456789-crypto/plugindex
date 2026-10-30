@@ -14,8 +14,10 @@ export function SiteFooter() {
         </div>
         <div className="footer-links">
           <Link href="/plugins">Directory</Link>
+          <Link href="/tags">Tags</Link>
           <Link href="/how-search-works">How search works</Link>
           <Link href="/about">About</Link>
+          <Link href="/sitemap.xml">Sitemap</Link>
           <a
             href="https://wordpress.org/plugins/"
             rel="noopener noreferrer"

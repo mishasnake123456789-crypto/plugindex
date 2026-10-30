@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Pagination } from "@/components/Pagination";
 import { PluginCard } from "@/components/PluginCard";
-import { queryPlugins } from "@/lib/wordpress";
+import { queryPlugins } from "@/lib/catalog";
+import { itemListJsonLd } from "@/lib/seo";
+import { stripHtml } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
   title: "New WordPress plugins",
@@ -9,6 +11,8 @@ export const metadata: Metadata = {
     "Discover newly added WordPress.org plugins, indexed by PlugIndex with dedicated profile pages.",
   alternates: { canonical: "/new" },
 };
+
+export const runtime = "nodejs";
 
 type PageProps = {
   searchParams: Promise<{ page?: string }>;
@@ -27,8 +31,20 @@ export default async function NewPluginsPage({ searchParams }: PageProps) {
     result = { info: { page: 1, pages: 0, results: 0 }, plugins: [] };
   }
 
+  const itemList = itemListJsonLd(
+    "New plugins",
+    result.plugins.map((p) => ({
+      name: stripHtml(p.name),
+      path: `/plugin/${p.slug}`,
+    })),
+  );
+
   return (
     <div className="shell">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+      />
       <header className="page-hero">
         <p className="eyebrow">Discovery</p>
         <h1>New plugins</h1>

@@ -2,18 +2,28 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getPlugin, listLocalSlugs } from "@/lib/catalog";
 import { formatInstalls, formatRelativeTime, truncate } from "@/lib/format";
+import { breadcrumbJsonLd, parseWpDate } from "@/lib/seo";
 import {
   absoluteUrl,
-  getPlugin,
   pluginIcon,
   starsFromRating,
   stripHtml,
 } from "@/lib/wordpress";
 
+export const runtime = "nodejs";
+export const revalidate = 3600;
+
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateStaticParams() {
+  // Prebuild a crawl-ready slice of popular/local slugs; the rest render on demand.
+  const slugs = listLocalSlugs(0, 250);
+  return slugs.map((slug) => ({ slug }));
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -33,6 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${name} – WordPress plugin`;
   const canonical = `/plugin/${plugin.slug}`;
   const icon = pluginIcon(plugin);
+  const modified = parseWpDate(plugin.last_updated);
 
   return {
     title,
@@ -43,6 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url: absoluteUrl(canonical),
       type: "article",
+      modifiedTime: modified?.toISOString(),
       images: icon ? [{ url: icon }] : undefined,
     },
     twitter: {
@@ -50,6 +62,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${name} | PlugIndex`,
       description,
       images: icon ? [icon] : undefined,
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -69,6 +85,7 @@ export default async function PluginPage({ params }: PageProps) {
   const tags = Object.entries(plugin.tags || {});
   const author = stripHtml(plugin.author);
   const wordpressOrgUrl = `https://wordpress.org/plugins/${plugin.slug}/`;
+  const modified = parseWpDate(plugin.last_updated);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -79,6 +96,7 @@ export default async function PluginPage({ params }: PageProps) {
     description: stripHtml(plugin.short_description),
     url: absoluteUrl(`/plugin/${plugin.slug}`),
     softwareVersion: plugin.version,
+    dateModified: modified?.toISOString(),
     aggregateRating:
       plugin.num_ratings > 0
         ? {
@@ -96,11 +114,21 @@ export default async function PluginPage({ params }: PageProps) {
     },
   };
 
+  const breadcrumbs = breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Directory", path: "/plugins" },
+    { name, path: `/plugin/${plugin.slug}` },
+  ]);
+
   return (
     <div className="shell">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
 
       <header className="page-hero">
@@ -184,7 +212,7 @@ export default async function PluginPage({ params }: PageProps) {
               <ul className="tag-list">
                 {tags.map(([slugKey, label]) => (
                   <li key={slugKey}>
-                    <Link href={`/plugins?tag=${encodeURIComponent(slugKey)}`}>
+                    <Link href={`/tag/${encodeURIComponent(slugKey)}`}>
                       {label}
                     </Link>
                   </li>

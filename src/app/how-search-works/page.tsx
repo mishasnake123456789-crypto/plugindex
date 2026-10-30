@@ -50,9 +50,11 @@ export default function HowSearchWorksPage() {
       </div>
 
       <p className="prose">
-        This first slice queries the public WordPress.org Plugins API directly.
-        A later indexing pipeline can store the full catalog locally for faster
-        search ranking, sitemap coverage of every slug, and offline resilience.
+        PlugIndex syncs public WordPress.org plugin metadata into a local SQLite
+        index (with FTS5 search). Browse and tag pages are served from that
+        index; chunked sitemaps list every plugin slug so crawlers can discover
+        each profile URL. When local search finds nothing, queries can fall back
+        to the live WordPress.org API.
       </p>
 
       <div className="cta-row">
