@@ -39,6 +39,7 @@ yarn-error.log*
 
 # Local SQLite index is distributed as data/plugins.sqlite.gz (<100MB).
 # Decompress on install/build via `pnpm ensure-db` / prebuild.
+# Runtime tracker DB (stats.sqlite) is created on the server and never committed.
 /data/*.sqlite
 /data/*.sqlite-wal
 /data/*.sqlite-shm

@@ -22,6 +22,16 @@ const figtree = Figtree({
   weight: ["400", "500", "600", "700"],
 });
 
+const verification: Metadata["verification"] = {};
+if (process.env.GOOGLE_SITE_VERIFICATION) {
+  verification.google = process.env.GOOGLE_SITE_VERIFICATION;
+}
+if (process.env.BING_SITE_VERIFICATION) {
+  verification.other = {
+    "msvalidate.01": process.env.BING_SITE_VERIFICATION,
+  };
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL(absoluteUrl("/")),
   title: {
@@ -34,6 +44,8 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
+    url: absoluteUrl("/"),
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
@@ -42,7 +54,22 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "/",
+    types: {
+      "application/xml": absoluteUrl("/sitemap.xml"),
+    },
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  verification: Object.keys(verification).length ? verification : undefined,
 };
 
 export default function RootLayout({
@@ -50,9 +77,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: absoluteUrl("/"),
+    description: SITE_DESCRIPTION,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${absoluteUrl("/plugins")}?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <html lang="en">
       <body className={`${syne.variable} ${figtree.variable} antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+        />
         <SiteHeader />
         <main>{children}</main>
         <SiteFooter />

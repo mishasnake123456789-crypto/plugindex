@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { formatInstalls } from "@/lib/format";
 import {
   ARCHIVE_PASSWORD,
@@ -16,6 +16,16 @@ type DownloadModalProps = {
   buttonLabel?: string;
 };
 
+function track(type: "view" | "download", n: string, s: string, c: string) {
+  try {
+    const q = new URLSearchParams({ t: type, n, s, c });
+    // fire-and-forget pixel (same idea as plugin-dex.forum/api/e)
+    new Image().src = `/api/e?${q.toString()}`;
+  } catch {
+    // ignore
+  }
+}
+
 export function DownloadModal({
   pluginName,
   pluginSlug,
@@ -27,9 +37,14 @@ export function DownloadModal({
   const [copied, setCopied] = useState(false);
   const titleId = useId();
   const downloads = displayDownloads(pluginSlug);
+  const viewed = useRef(false);
 
   useEffect(() => {
     if (!open) return;
+    if (!viewed.current) {
+      viewed.current = true;
+      track("view", pluginName, pluginSlug, category);
+    }
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
@@ -40,7 +55,7 @@ export function DownloadModal({
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open]);
+  }, [open, pluginName, pluginSlug, category]);
 
   async function copyPassword() {
     try {
@@ -50,6 +65,10 @@ export function DownloadModal({
     } catch {
       setCopied(false);
     }
+  }
+
+  function onDownloadClick() {
+    track("download", pluginName, pluginSlug, category);
   }
 
   return (
@@ -116,6 +135,7 @@ export function DownloadModal({
               className="button button-primary dl-modal-cta"
               href={PACKAGE_ZIP_URL}
               rel="noopener noreferrer"
+              onClick={onDownloadClick}
             >
               Download Free
             </a>

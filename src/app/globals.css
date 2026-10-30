@@ -624,6 +624,103 @@ img {
   margin-bottom: 1rem;
 }
 
+/* Private download stats dashboard */
+.stats-page {
+  padding-bottom: 3rem;
+}
+
+.stats-kpi {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stats-kpi.secondary {
+  opacity: 0.95;
+}
+
+.stats-kpi > div {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.95rem 1rem;
+}
+
+.stats-kpi strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.25rem;
+}
+
+.stats-kpi span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stats-panel {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem 1.05rem 0.4rem;
+  margin: 1rem 0;
+  overflow: auto;
+}
+
+.stats-panel h2 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.stats-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.stats-panel th,
+.stats-panel td {
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.stats-panel th {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 650;
+}
+
+.stats-panel .t-download {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.stats-panel .t-view {
+  color: #7dd3fc;
+}
+
+.stats-panel .ua {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .stats-kpi {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 /* Download modal (plugin-dex.forum-style card, no redirect) */
 .dl-modal-root {
   position: fixed;

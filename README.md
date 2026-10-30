@@ -7,7 +7,8 @@ Independent WordPress plugin catalog inspired by [wpplugindex.com](https://wpplu
 - **Next.js 15** (App Router) + TypeScript + Tailwind CSS
 - Local **SQLite** index (`data/plugins.sqlite`) synced from the public WordPress.org Plugins API
 - Chunked **sitemap index** covering every plugin slug + tag pages
-- No API keys required
+- Private download/view tracker (`/stats`) + **IndexNow** for Bing
+- No API keys required for the public catalog
 
 ## Routes
 
@@ -19,6 +20,10 @@ Independent WordPress plugin catalog inspired by [wpplugindex.com](https://wpplu
 | `/recently-updated`, `/new` | Freshness lists |
 | `/tags`, `/tag/[tag]` | Indexable tag taxonomy |
 | `/about`, `/how-search-works` | Product pages |
+| `/stats?key=…` | Private download/view dashboard (`STATS_KEY`, noindex) |
+| `/api/e` | Tracker pixel (`t=view\|download`) |
+| `/api/indexnow` | Submit URLs to IndexNow (gated by `STATS_KEY`) |
+| `/{INDEXNOW_KEY}.txt` | IndexNow key file |
 | `/sitemap.xml` | Sitemap **index** |
 | `/sitemaps/static.xml` | Static URLs |
 | `/sitemaps/plugins/{n}.xml` | Plugin URL chunks (5k each) |
@@ -52,9 +57,45 @@ Set `NEXT_PUBLIC_SITE_URL` to your production origin so canonicals, Open Graph, 
 
 - Source: `https://api.wordpress.org/plugins/info/1.2/`
 - Local DB: `data/plugins.sqlite` (built by `pnpm sync`; shipped as `data/plugins.sqlite.gz` and auto-unzipped by `prebuild` / `ensure-db`)
+- Tracker DB: `data/stats.sqlite` (created at runtime; gitignored)
 - Search: SQLite FTS5 over name / description / tags, with WordPress.org API fallback
 
 PlugIndex does not host plugin ZIPs. Download / install still happens on WordPress.org.
+
+## SEO / indexing (Google + Bing)
+
+Built-in:
+
+- Canonical URLs, Open Graph, Twitter cards on all public pages
+- `WebSite` + `SearchAction` JSON-LD (sitewide) and `SoftwareApplication` + breadcrumbs on plugin pages
+- Chunked sitemap index (`/sitemap.xml`) with static, plugin, and tag chunks
+- `robots.txt` allows crawlers; disallows `/api/` and `/stats`
+- IndexNow key file + gated submit endpoint for Bing/partners
+- Optional `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION` meta tags
+
+### Google Search Console
+
+1. Verify the property (HTML tag → set `GOOGLE_SITE_VERIFICATION`, redeploy)
+2. Submit `https://your-domain/sitemap.xml`
+3. Request indexing for the homepage once verification is green
+
+### Bing Webmaster Tools
+
+1. Verify (meta tag → set `BING_SITE_VERIFICATION`, or import from GSC)
+2. Submit the same sitemap
+3. Optionally push seed URLs via IndexNow:
+
+```bash
+curl -X POST "https://your-domain/api/indexnow?key=$STATS_KEY" \
+  -H 'content-type: application/json' \
+  -d '{"limit":200}'
+```
+
+Confirm the key file resolves: `https://your-domain/{INDEXNOW_KEY}.txt`
+
+### Private stats
+
+Open `https://your-domain/stats/?key=$STATS_KEY` — same KPI layout as plugin-dex.forum (totals, today, 7d sessions, last 30 days, top plugins, recent events). Tracker fires from the download modal (`view` on open, `download` on “Download Free”).
 
 ## Repo note
 
@@ -63,10 +104,11 @@ PlugIndex does not host plugin ZIPs. Download / install still happens on WordPre
 ## Indexing checklist
 
 1. Run `pnpm sync` so every active slug is in SQLite
-2. Deploy with `NEXT_PUBLIC_SITE_URL=https://your-domain`
-3. Submit `https://your-domain/sitemap.xml` to Google Search Console / Bing
-4. Re-run sync on a schedule (daily) to refresh freshness signals
-5. Optionally enrich top plugins with `--enrich` for fuller on-page copy
+2. Deploy with `NEXT_PUBLIC_SITE_URL=https://your-domain` and `STATS_KEY` / `INDEXNOW_KEY`
+3. Submit `https://your-domain/sitemap.xml` to Google Search Console / Bing Webmaster
+4. Optionally set verification env vars and POST `/api/indexnow`
+5. Re-run sync on a schedule (daily) to refresh freshness signals
+6. Optionally enrich top plugins with `--enrich` for fuller on-page copy
 
 ## Scripts
 
