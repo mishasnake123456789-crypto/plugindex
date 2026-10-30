@@ -4,15 +4,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DownloadModal } from "@/components/DownloadModal";
 import { getPlugin, listLocalSlugs } from "@/lib/catalog";
-import { displayDownloads } from "@/lib/download";
+import {
+  displayActiveInstalls,
+  displayDownloads,
+  displayNumRatings,
+  displayStars,
+} from "@/lib/download";
 import { formatInstalls, formatRelativeTime, truncate } from "@/lib/format";
 import { breadcrumbJsonLd, parseWpDate } from "@/lib/seo";
-import {
-  absoluteUrl,
-  pluginIcon,
-  starsFromRating,
-  stripHtml,
-} from "@/lib/wordpress";
+import { absoluteUrl, pluginIcon, stripHtml } from "@/lib/wordpress";
 
 export const runtime = "nodejs";
 export const revalidate = 3600;
@@ -79,7 +79,9 @@ export default async function PluginPage({ params }: PageProps) {
 
   const name = stripHtml(plugin.name);
   const icon = pluginIcon(plugin);
-  const stars = starsFromRating(plugin.rating ?? 0);
+  const stars = displayStars(plugin.slug);
+  const numRatings = displayNumRatings(plugin.slug);
+  const installs = displayActiveInstalls(plugin.slug);
   const descriptionHtml =
     plugin.sections?.description ||
     plugin.description ||
@@ -101,16 +103,13 @@ export default async function PluginPage({ params }: PageProps) {
     url: absoluteUrl(`/plugin/${plugin.slug}`),
     softwareVersion: plugin.version,
     dateModified: modified?.toISOString(),
-    aggregateRating:
-      plugin.num_ratings > 0
-        ? {
-            "@type": "AggregateRating",
-            ratingValue: stars,
-            ratingCount: plugin.num_ratings,
-            bestRating: 5,
-            worstRating: 0,
-          }
-        : undefined,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: stars,
+      ratingCount: numRatings,
+      bestRating: 5,
+      worstRating: 1,
+    },
     offers: {
       "@type": "Offer",
       price: "0",
@@ -255,14 +254,12 @@ export default async function PluginPage({ params }: PageProps) {
             </div>
             <div className="snapshot-item">
               <span>Active installations</span>
-              <strong>{formatInstalls(plugin.active_installs)}</strong>
+              <strong>{formatInstalls(installs)}</strong>
             </div>
             <div className="snapshot-item">
-              <span>WordPress.org rating</span>
+              <span>Rating</span>
               <strong>
-                {plugin.num_ratings > 0
-                  ? `★ ${stars.toFixed(1)} (${plugin.num_ratings})`
-                  : "No ratings yet"}
+                ★ {stars.toFixed(1)} ({numRatings.toLocaleString()})
               </strong>
             </div>
             <div className="snapshot-item">
