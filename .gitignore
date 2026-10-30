@@ -1,0 +1,5 @@
+site/downloads/*.zip
+
+# local migration dumps
+site-exports/
+
