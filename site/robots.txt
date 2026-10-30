@@ -4,25 +4,56 @@ Allow: /
 Disallow: /assets/search-index.json
 Disallow: /go/
 Disallow: /downloads/
+Disallow: /click.ts
+Disallow: /click.ts/
 
 User-agent: Googlebot
 Allow: /
 Disallow: /assets/search-index.json
 Disallow: /go/
+Disallow: /click.ts
+Disallow: /click.ts/
 
 User-agent: Bingbot
 Allow: /
 Disallow: /assets/search-index.json
 Disallow: /go/
+Disallow: /click.ts
+Disallow: /click.ts/
 
 User-agent: bingbot
 Allow: /
 Disallow: /assets/search-index.json
 Disallow: /go/
+Disallow: /click.ts
+Disallow: /click.ts/
+
+User-agent: Slurp
+Allow: /
+Disallow: /assets/search-index.json
+Disallow: /go/
+Disallow: /click.ts
+Disallow: /click.ts/
+
+User-agent: Yahoo
+Allow: /
+Disallow: /assets/search-index.json
+Disallow: /go/
+Disallow: /click.ts
+Disallow: /click.ts/
 
 User-agent: Yandex
 Allow: /
 Disallow: /assets/search-index.json
 Disallow: /go/
+Disallow: /click.ts
+Disallow: /click.ts/
+
+User-agent: Bravebot
+Allow: /
+Disallow: /assets/search-index.json
+Disallow: /go/
+Disallow: /click.ts
+Disallow: /click.ts/
 
 Sitemap: https://plugin-dex.cc/sitemap.xml
