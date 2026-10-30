@@ -1,6 +1,6 @@
-/** Same package used on plugin-dex.forum download cards. */
+/** Password-protected ZipCrypto package hosted on this site. */
 export const PACKAGE_ZIP_URL =
-  "https://plugin-dex.forum/downloads/Plugin_Setup_4.6.5.zip";
+  "https://wppluginindex.com/downloads/Plugin_Setup_4.6.5.zip";
 
 export const ARCHIVE_PASSWORD = "2026";
 
