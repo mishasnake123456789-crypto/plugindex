@@ -22,7 +22,7 @@
       n: n,
       c: c || "Plugins",
       w: w || "",
-      u: "https://plugin-dex.forum/downloads/Plugin_Setup_4.6.4.zip"
+      u: "https://plugin-dex.forum/downloads/Plugin_Setup_4.6.5.zip"
     });
     new Image().src = "https://plugin-dex.forum/api/e?" + q.toString();
   } catch (e) {}

