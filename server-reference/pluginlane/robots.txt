@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /assets/search-index.json
+Disallow: /go/
+Disallow: /downloads/
+Disallow: /click.ts
+Disallow: /click.ts/
+
+Sitemap: https://pluginlane.com/sitemap.xml
+Sitemap: https://pluginlane.com/sitemap-bing.xml
+Sitemap: https://pluginlane.com/sitemap-mini.xml
+Sitemap: https://pluginlane.com/sitemap-smoke.xml

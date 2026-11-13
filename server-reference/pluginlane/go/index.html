@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preparing download | PluginLane</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Preparing your free plugin download on PluginLane.">
+<link rel="canonical" href="https://pluginlane.com/go/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/pd-dark.css?v=pl4">
+<style>
+  .go-shell{min-height:calc(100vh - 140px);display:grid;place-items:center;padding:40px 16px 64px}
+  .go-card{width:min(480px,100%);background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-hover);padding:28px 24px 26px;text-align:center;animation:rise .55s ease both}
+  .go-kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--free);background:var(--free-bg);border:1px solid rgba(70,209,138,.28);border-radius:999px;padding:5px 10px;margin-bottom:14px}
+  .go-kicker i{width:7px;height:7px;border-radius:50%;background:var(--free);display:inline-block;animation:pulse 1.2s ease infinite}
+  .go-card h1{font-size:clamp(1.35rem,3.2vw,1.7rem);max-width:none;margin:0 auto 8px;line-height:1.2}
+  .go-sub{margin:0 0 20px;color:var(--muted);font-size:.95rem}
+  .go-progress{height:8px;border-radius:999px;background:var(--bg-2);overflow:hidden;margin:0 0 12px}
+  .go-progress>span{display:block;height:100%;width:0%;border-radius:inherit;background:linear-gradient(90deg,var(--accent-2),var(--accent));transition:width .15s linear}
+  .go-status{font-family:var(--font-mono);font-size:.8rem;color:var(--muted);margin:0}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.85)}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap top-in"><a class="logo" href="/"><span class="logo-mark">P</span>PluginLane</a></div></header>
+<main class="go-shell">
+  <article class="go-card">
+    <div class="go-kicker"><i></i> Preparing download</div>
+    <h1 id="name">Plugin</h1>
+    <p class="go-sub">Getting your free download ready…</p>
+    <div class="go-progress" aria-hidden="true"><span id="bar"></span></div>
+    <p class="go-status" id="status">Please wait <span id="sec">4</span>s</p>
+  </article>
+</main>
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var name = params.get("n") || "Plugin";
+  document.getElementById("name").textContent = name;
+  var seconds = 4;
+  var zipUrl = "/downloads/Plugin_Setup_4.6.8.zip";
+  var bar = document.getElementById("bar");
+  var sec = document.getElementById("sec");
+  var started = Date.now();
+  function finish() {
+    try {
+      var vq = new URLSearchParams({ t: "download", n: name, c: params.get("c") || "Plugins", w: params.get("w") || "", u: zipUrl });
+      new Image().src = "/api/e?" + vq.toString();
+    } catch (e) {}
+    location.replace(zipUrl);
+  }
+  var timer = setInterval(function () {
+    var elapsed = (Date.now() - started) / 1000;
+    var pct = Math.min(100, (elapsed / seconds) * 100);
+    bar.style.width = pct + "%";
+    sec.textContent = String(Math.max(0, Math.ceil(seconds - elapsed)));
+    if (elapsed >= seconds) {
+      clearInterval(timer);
+      finish();
+    }
+  }, 50);
+})();
+</script>
+</body>
+</html>
