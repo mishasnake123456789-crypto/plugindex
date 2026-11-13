@@ -94,8 +94,9 @@ lane_root = Path("/var/www/pluginlane/plugin")
 folio_root = Path("/var/www/plugin-dex/plugin")
 faq_free_info = "This PluginLane page lists the details at no cost."
 faq_free_dl = "Click the Download Free button on this PluginLane page to get it at no cost."
+# Do not allow '>' in the name capture — otherwise "<p>Name is listed..." becomes "<Download p>Name free...".
 faq_where_info_re = re.compile(
-    r"([^<\"]+) is listed on this PluginLane info page\. Browse the details here — downloads are not offered right now\."
+    r"(?<![>\w])([^<>\"]+?) is listed on this PluginLane info page\. Browse the details here — downloads are not offered right now\."
 )
 header_btn_re = re.compile(
     r'(<div class="card-meta">.*?</div>\n    </div>\n)(  </header>)',
@@ -125,7 +126,9 @@ def restore_one(lane_path: Path):
     if 'href="/go/' not in out:
         if not header_btn_re.search(out):
             return ("no_header_anchor", slug)
-        out = header_btn_re.sub(r"\1      " + btn + "\n\2", out, count=1)
+        # IMPORTANT: use raw backrefs. A normal "\2" string is octal STX (\x02), which
+        # previously ate </header> and broke .plugin-head layout on all plugin pages.
+        out = header_btn_re.sub(r"\1      " + btn + r"\n\2", out, count=1)
         if not aside_btn_re.search(out):
             return ("no_aside_anchor", slug)
         out = aside_btn_re.sub(r"\1" + btn_wide + r"\2", out, count=1)

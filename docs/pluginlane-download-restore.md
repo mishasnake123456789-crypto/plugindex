@@ -45,6 +45,18 @@ curl -sI https://pluginlane.com/downloads/Plugin_Setup_4.6.8.zip
 
 Folio smoke: download buttons still present; no Lane-only changes applied there.
 
+## Layout fix (2026-11-13 follow-up)
+
+A bug in the first HTML rewrite used a non-raw `"\n\2"` replacement, so Python wrote STX (`\x02`) instead of `</header>`. That left `.plugin-head` unclosed and crushed the two-column layout on every plugin page. FAQ answers were also corrupted (`<p>Name is listed…` → `<Download p>Name free…`).
+
+Fixed on the VPS for all 6697 plugin pages:
+
+- `\x02` → `  </header>`
+- `<Download p>` → `<p>Download `
+
+Pre-fix sample backup: `/var/backups/pl-html-layout-fix-pre-20261113T064439Z/`  
+`scripts/restore-pluginlane-downloads.sh` now uses raw `\2` backrefs and a safer FAQ regex.
+
 ## Rollback (Lane)
 
 ```bash
